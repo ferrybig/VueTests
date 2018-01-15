@@ -1,97 +1,228 @@
 <template>
-  <v-app>
-    <v-navigation-drawer
-      fixed
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      v-model="drawer"
-      app
-    >
-      <v-list>
-        <v-list-tile 
-          value="true"
-          v-for="(item, i) in items"
-          :key="i"
-        >
-          <v-list-tile-action>
-            <v-icon v-html="item.icon"></v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-toolbar fixed app :clipped-left="clipped">
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="title"></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-content>
-      <v-container fluid>
-        <v-slide-y-transition mode="out-in">
-          <v-layout column align-center>
-            <img src="/public/v.png" alt="Vuetify.js" class="mb-5" />
-            <blockquote>
-              &#8220;First, solve the problem. Then, write the code.&#8221;
-              <footer>
-                <small>
-                  <em>&mdash;John Johnson</em>
-                </small>
-              </footer>
-            </blockquote>
-          </v-layout>
-        </v-slide-y-transition>
-      </v-container>
-    </v-content>
-    <v-navigation-drawer
-      temporary
-      :right="right"
-      v-model="rightDrawer"
-      fixed
-    >
-      <v-list>
-        <v-list-tile @click.native="right = !right">
-          <v-list-tile-action>
-            <v-icon>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
-    </v-footer>
-  </v-app>
+	<div id="main">
+		<h1>Vue Draggable</h1>
+		<div class="drag">
+			<div class="main">
+				<h2>
+					page
+				</h2>
+				<div class="list">
+					<template v-for="(element, index) in this.pageModel" >
+						<template v-if="element.type === 'draggable'">
+							<draggable
+									v-model="element.target"
+									class="dragArea dragTarget"
+									:options="{forceFallback: true, group:'people'}"
+									@add="evt => onAdd(index, evt)"
+							>
+								<div
+										v-for="(element, index) in element.target"
+										:key="index"
+										class="component"
+								>
+									{{element.name}}
+								</div>
+							</draggable>
+						</template>
+						<component
+								v-if="element.type === 'component'"
+								:key="element.id"
+								v-bind="element.data"
+								@action="evt => onAction(element.index, evt)"
+								@input="evt => element.data.value = evt"
+						/>
+					</template>
+				</div>
+
+			</div>
+			<div class="sidebar">
+				<h2>
+					sidebar
+				</h2>
+				<draggable
+						v-model="this.pageComponents"
+						class="dragArea"
+						:options="{forceFallback: true, group:{ name:'people',  pull:'clone', put:false }, }"
+				>
+					<div v-for="(element, index) in this.pageComponents" :key="index" class="component">{{element.name}}</div>
+				</draggable>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
-  export default {
-    data () {
-      return {
-        clipped: false,
-        drawer: true,
-        fixed: false,
-        items: [
-          { icon: 'bubble_chart', title: 'Inspire' }
-        ],
-        miniVariant: false,
-        right: true,
-        rightDrawer: false,
-        title: 'Vuetify.js'
-      }
-    }
-  }
+import draggable from 'vuedraggable';
+import testComponent from "./templates/test/index";
+import h1Component from "./templates/h1/index";
+import textAreaComponent from "./templates/textarea/index";
+
+export default {
+	components: {
+		draggable,
+		testComponent,
+		textAreaComponent,
+		h1Component
+	},
+	data () {
+		return {
+			showDragTargets: false,
+			pageComponents: [
+				{
+					is: "testComponent",
+					name: "test"
+				}, {
+					is: "h1Component",
+					name: "h1",
+				}, {
+					is: "textAreaComponent",
+					name: "textArea",
+					value: 'default text',
+					allowDupes: true,
+				}
+			],
+			page: [
+				{
+					is: "testComponent",
+					name: "test"
+				}
+			],
+			lastId: 0,
+		}
+	},
+	computed: {
+		pageModel() {
+			const arr = [];
+			for(let i = 0; i <= this.page.length; i++) {
+				arr.push({
+					type: 'draggable',
+					index: i,
+					target: [],
+				});
+				if(i != this.page.length) {
+					arr.push({
+						type: 'component',
+						index: i,
+						data: this.page[i],
+					});
+				}
+			}
+			return arr;
+		}
+	},
+	methods: {
+		onAction (index, evt) {
+			switch (evt) {
+				case 'moveUp':
+					this.moveUp(index);
+					break;
+				case 'moveDown':
+					this.moveDown(index);
+					break;
+				case 'delete':
+					this.delete(index);
+					break;
+				default:
+					console.log('I don\'t know how but you messed it up anyways')
+					break;
+			}
+		},
+
+		moveUp (index) {
+			if (index !== 0) {
+				let lastObj = this.page[index];
+				Vue.set(this.page, index, this.page[index - 1]);
+				Vue.set(this.page, index - 1, lastObj);
+			} else {
+				console.log('nope');
+			}
+		},
+
+		moveDown (index) {
+			if (index !== this.page.length - 1) {
+				let lastObj = this.page[index];
+				Vue.set(this.page, index, this.page[index + 1]);
+				Vue.set(this.page, index + 1, lastObj);
+			} else {
+				console.log('nope');
+			}
+		},
+
+		delete (index) {
+			this.page.splice(index, 1);
+		},
+
+		onAdd(index){
+			const element = this.pageModel[index].target[0];
+			this.pageModel[index].target.pop();
+			let found = false;
+			if (!element.allowDupes) {
+				for(let i = 0; i < this.page.length; i++) {
+					if(this.page[i].name === element.name) {
+						found = true
+					}
+				}
+			}
+			//Clone element
+			const newElement = JSON.parse(JSON.stringify(element));
+			newElement.id = this.lastId++;
+			if(!found)
+				this.page.splice(index / 2, 0, newElement);
+		}
+	}
+}
 </script>
+
+<style lang="scss">
+	.drag {
+		display: flex;
+	}
+	.main {
+		width: 66%;
+	}
+	.sidebar {
+		width: 33%;
+	}
+
+	.dragArea {
+		min-height: 30px;
+	}
+	.pagepart {
+		border: 1px solid black;
+	}
+	.dragTarget {
+		display: flex;
+		position: relative;
+		justify-content: center;
+		align-content: center;
+	}
+	.dragTarget::after {
+		position: absolute;
+		content: '';
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 10px;
+		height: 0;
+		border: 2px solid black;
+	}
+	.dragTarget::before {
+		position: absolute;
+		content: '';
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 0;
+		height: 10px;
+		border: 2px solid black;
+	}
+	.component {
+		background: white;
+		display: inline-block;
+		border: 1px solid black;
+		padding: 3px;
+		position: relative;
+		z-index: 1
+	}
+
+</style>
