@@ -5,7 +5,7 @@
 </template>
 
 <script>
-	import dragDropTemplate from "../index";
+	import dragDropTemplate from "../base/index";
 
 	export default {
 		components: {

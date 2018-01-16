@@ -33,7 +33,6 @@
 						/>
 					</template>
 				</div>
-
 			</div>
 			<div class="sidebar">
 				<h2>
@@ -56,7 +55,7 @@ import draggable from 'vuedraggable';
 import testComponent from "./templates/test/index";
 import h1Component from "./templates/h1/index";
 import textAreaComponent from "./templates/textarea/index";
-import Vue from "vue"
+import Vue from "vue";
 
 export default {
 	components: {
