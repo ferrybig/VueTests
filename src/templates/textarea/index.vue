@@ -14,7 +14,8 @@
 		props: {
 			value: {
 				type: String,
-			}
+				required: true,
+			},
 		}
 	}
 </script>
