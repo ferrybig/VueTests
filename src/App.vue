@@ -1,35 +1,29 @@
 <template>
 	<div>
-		<h1>Vue Draggable</h1>
 		<div style="display: flex;">
 			<div style="width: 66%;" >
 				<h2>
 					page
 				</h2>
-				<drop v-model="this.page"/>
+				<drop v-model="page"/>
 			</div>
-			<div style="width: 33%;align-self: flex-start; position: sticky; top: 0">
+			<div style="width: 33%; align-self: flex-start; position: sticky; top: 0">
 				<h2>
 					sidebar
 				</h2>
-				<drag v-model="this.pageComponents"/>
+				<drag v-model="pageComponents"/>
 			</div>
 		</div>
+		<pre>{{ page }}</pre>
 	</div>
 </template>
 
 <script>
-import testComponent from "./templates/test/index";
-import h1Component from "./templates/h1/index";
-import textAreaComponent from "./templates/textarea/index";
 import drag from "./templates/dragdrop/drag/index";
 import drop from "./templates/dragdrop/drop/index";
 
 export default {
 	components: {
-		testComponent,
-		textAreaComponent,
-		h1Component,
 		drag,
 		drop
 	},
@@ -37,29 +31,24 @@ export default {
 		return {
 			pageComponents: [
 				{
-					is: "testComponent",
+					is: "test-component",
 					name: "test",
 					value: '',
 					allowDupes: false,
 				}, {
-					is: "h1Component",
+					is: "h1-component",
 					name: "h1",
 					value: '',
 					allowDupes: false,
 				}, {
-					is: "textAreaComponent",
+					is: "textArea-component",
 					name: "textarea",
 					value: 'Default text',
 					allowDupes: true,
 				}
 			],
 
-			page: [
-				{
-					is: "testComponent",
-					name: "test"
-				}
-			],
+			page: [],
 		};
 	}
 }

@@ -1,7 +1,7 @@
 <template>
-	<dragDropTemplate title="h1" @action="evt => $emit('action', evt)">
+	<drag-drop-template title="h1" @action="evt => $emit('action', evt)">
 		<h1>I'm a header</h1>
-	</dragDropTemplate>
+	</drag-drop-template>
 </template>
 
 <script>
@@ -10,12 +10,6 @@
 	export default {
 		components: {
 			dragDropTemplate,
-		},
-		props: {
-			value: {
-				type: String,
-				required: true,
-			},
 		},
 	}
 </script>

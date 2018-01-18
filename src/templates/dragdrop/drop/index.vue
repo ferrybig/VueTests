@@ -1,6 +1,6 @@
 <template>
 	<div class="list">
-		<template v-for="(element, index) in this.pageModel" >
+		<template v-for="(element, index) in pageModel" >
 			<template v-if="element.type === 'draggable'">
 				<draggable
 						v-model="element.target"
@@ -62,12 +62,7 @@
 		},
 		data() {
 			return {
-				page: [
-					{
-						is: "testComponent",
-						name: "test"
-					}
-				],
+				page: [],
 				lastId: 0,
 			};
 		},

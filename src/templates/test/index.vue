@@ -1,7 +1,7 @@
 <template>
-	<dragDropTemplate title="test" @action="evt => $emit('action', evt)">
+	<drag-drop-template title="test" @action="evt => $emit('action', evt)">
 		This is the test page!!
-	</dragDropTemplate>
+	</drag-drop-template>
 </template>
 
 <script>

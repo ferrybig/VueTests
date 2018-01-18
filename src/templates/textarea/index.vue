@@ -1,7 +1,7 @@
 <template>
-	<dragDropTemplate title="textarea" @action="evt => $emit('action', evt)">
+	<drag-drop-template title="textarea" @action="evt => $emit('action', evt)">
 		<textarea :value="value" @input="$emit('input', $event.target.value)"></textarea>
-	</dragDropTemplate>
+	</drag-drop-template>
 </template>
 
 <script>
