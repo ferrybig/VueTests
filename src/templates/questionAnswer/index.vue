@@ -1,5 +1,5 @@
 <template>
-	<drag-drop-template title="textarea" @action="evt => $emit('action', evt)">
+	<drag-drop-template title="Question & Answer" @action="evt => $emit('action', evt)">
 		<div>
 			Question:
 			<input :value="question" @input="changed($event.target.value, answer)"/>
@@ -22,7 +22,7 @@
 			return {
 				question: '',
 				answer: '',
-			}
+			};
 		},
 		created() {
 			this.question = this.value.question;
@@ -42,7 +42,7 @@
 					question,
 					answer
 				});
-			}
+			},
 		},
 		props: {
 			value: {
