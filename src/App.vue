@@ -45,6 +45,14 @@ export default {
 					name: "textarea",
 					value: 'Default text',
 					allowDupes: true,
+				}, {
+					is: 'question-answer-component',
+					name: 'Q&A',
+					allowDupes: true,
+					value: {
+						question: 'default question',
+						answer: 'default answer',
+					}
 				}
 			],
 

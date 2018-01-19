@@ -33,6 +33,7 @@
 	import testComponent from "../../test/index";
 	import h1Component from "../../h1/index";
 	import textAreaComponent from "../../textarea/index";
+	import questionAnswerComponent from '../../questionAnswer/index';
 	import Vue from "vue";
 
 	export default {
@@ -41,6 +42,7 @@
 			testComponent,
 			textAreaComponent,
 			h1Component,
+			questionAnswerComponent,
 		},
 		model: {
 			prop: 'value',
