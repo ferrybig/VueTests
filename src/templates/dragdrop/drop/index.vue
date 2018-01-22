@@ -1,31 +1,19 @@
 <template>
-	<div class="list">
+	<draggable
+		class="list"
+		v-model="pageModel"
+		:options="options"
+	>
 		<template v-for="(element, index) in pageModel" >
-			<template v-if="element.type === 'draggable'">
-				<draggable
-						v-model="element.target"
-						class="dragArea dragTarget"
-						:options="{forceFallback: true, group:'people'}"
-						@add="evt => onAdd(index, evt)"
-				>
-					<div
-							v-for="(element, index) in element.target"
-							:key="index"
-							class="component"
-					>
-						{{element.name}}
-					</div>
-				</draggable>
-			</template>
 			<component
-					v-if="element.type === 'component'"
-					:key="element.id"
-					v-bind="element.data"
-					@action="evt => onAction(element.index, evt)"
-					@input="evt => element.data.value = evt"
+				:key="element.id"
+				:is="element.is"
+				:value="element.value"
+				@action="evt => onAction(index, evt)"
+				@input="evt => element.value = evt"
 			/>
 		</template>
-	</div>
+	</draggable>
 </template>
 
 <script>
@@ -49,10 +37,36 @@
 			event: 'input'
 		},
 		props: {
+			/**
+			 * Value is the value received by v-model, and will contain our
+			 * page data
+			 */
 			value: {
 				type: Array,
 				required: true,
-			}
+				validator: function (value) {
+					for(let i = 0; i < value.length; i++) {
+						if(typeof value[i] !== 'object') {
+							return false;
+						}
+						if(!value[i].is) {
+							return false;
+						}
+						if(!value[i].name) {
+							return false;
+						}
+					}
+					return true;
+				},
+			},
+			/**
+			 * Group is used when there are multiple ragables on the same page,
+			 * when the name is differend, they cannot communicate
+			 */
+			group: {
+				type: String,
+				default: 'components',
+			},
 		},
 		created() {
 			this.page = this.value;
@@ -69,24 +83,43 @@
 			};
 		},
 		computed: {
-			pageModel() {
-				const arr = [];
-				for (let i = 0; i <= this.page.length; i++) {
-					arr.push({
-						type: 'draggable',
-						index: i,
-						target: [],
-					});
-					if (i != this.page.length) {
-						arr.push({
-							type: 'component',
-							index: i,
-							data: this.page[i],
-						});
+			/**
+			 * Page model is a copy of page, so we can receive set events on it,
+			 * and rewrite its internal variables if needed
+			 */
+			pageModel:{
+				get() {
+					const arr = [];
+					for (let i = 0; i < this.page.length; i++) {
+						if(!this.page[i].id) {
+							this.page[i].id = this.newId();
+						}
+						arr.push(this.page[i]);
 					}
-				}
-				return arr;
-			}
+					return arr;
+				},
+				set(newValue) {
+					for(let i = 0; i < newValue.length; i++) {
+						if(!newValue[i].id) {
+							// Copy the new value, so we don't edit the component itself
+							newValue[i] = {...newValue[i]};
+							newValue[i].id = this.newId();
+						}
+					}
+					this.$emit('input', newValue);
+				},
+			},
+			options() {
+				return {
+					forceFallback: true,
+					group: this.group,
+					handle: '.handle',
+					animation: 300,
+					ghostClass: 'pagepart--ghost',
+					chosenClass: 'pagepart--chosen',
+					dragClass: 'pagepart--drag',
+				};
+			},
 		},
 		methods: {
 			onAction(index, evt) {
@@ -133,30 +166,15 @@
 				this.$emit('input', this.page)
 			},
 
-			onAdd(index, evt) {
-				console.log('add', index, evt);
-				const element = this.pageModel[index].target[0];
-				this.pageModel[index].target.pop();
-				let found = false;
-				if (!element.allowDupes) {
-					for (let i = 0; i < this.page.length; i++) {
-						if (this.page[i].name === element.name) {
-							found = true
-						}
-					}
-				}
-				//Clone element
-				const newElement = JSON.parse(JSON.stringify(element));
-				newElement.id = this.lastId++;
-				if (!found) {
-					this.page.splice(index / 2, 0, newElement);
-					this.$emit('input', this.page)
-				}
+			newId() {
+				return ++this.lastId;
 			}
 		}
 	}
 </script>
 
 <style>
-
+	.list {
+		min-height: 100px;
+	}
 </style>
